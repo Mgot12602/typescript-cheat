@@ -30,7 +30,7 @@ type TPropsResult =
       role: string;
       privatePolicy?: undefined;
       history?: undefined;
-      policies?: undefined;
+      policies: string;
     };
 
 type TProps = {
@@ -40,31 +40,64 @@ type TProps = {
   policies: string;
 };
 
-type ConditionalProps<T, K extends keyof T> =
+type PropExistsOthersRequired2<T, K extends keyof T> =
   | T
   | ({ [P in keyof T as P extends K ? never : P]: T[P] } & {
-      [K in keyof T]?: undefined;
+      [P in keyof T as P extends K ? P : never]?: undefined;
     });
 
-type ConditionalProps2<T, K extends keyof T> =
+type PropExistsOthersRequired<T, K extends keyof T> =
   | T
-  | (Omit<T, K> & { [K in keyof T]?: undefined });
+  | (Omit<T, K> & { [P in K]?: undefined });
 
-const test: ConditionalProps<TProps, "privatePolicy" | "history"> = {
+const test4: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
   role: "foo",
-  privatePolicy: "foo",
   policies: "foo",
-};
+}; /* =>works */
 
-const test2: ConditionalProps2<TProps, "privatePolicy" | "history"> = {
+const test: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
   role: "foo",
-  privatePolicy: "foo",
+  history: "foo",
   policies: "foo",
-};
+}; /*  =>fails */
 
-const test3: ConditionalProps<TProps, "privatePolicy" | "history"> = {
+const test: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
+  role: "foo",
+  history: "foo",
+  privatePolicy: "foo",
+}; /*  => fails */
+
+const test2: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
   role: "foo",
   privatePolicy: "foo",
   policies: "foo",
   history: "foo",
-};
+}; /* =>works */
+
+const test3: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
+  role: "foo",
+  privatePolicy: "foo",
+  policies: "foo",
+  history: "foo",
+}; /* => works */
+
+const test5: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
+  role: "foo",
+  privatePolicy: "foo",
+  policies: "foo",
+  history: undefined,
+}; /* => fails */
+
+const test6: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
+  role: "foo",
+  privatePolicy: undefined,
+  policies: "foo",
+  history: "foo",
+}; /* => fails */
+
+const test7: PropExistsOthersRequired<TProps, "privatePolicy" | "history"> = {
+  role: "foo",
+  privatePolicy: undefined,
+  policies: "foo",
+  history: undefined,
+}; /* => works */
