@@ -17,7 +17,8 @@ type IKeyValue2<T> = {
 
 function objectKeyValue2<T extends IKeyValue2<T>>(arg: T) {}
 
-/* make desired props optional */
+/* PropExistsOthersRequired2<T,K>*/
+/* If one of the props of K exists in T then all the props must exist in T or both must be undefined */
 
 type TPropsResult =
   | {
@@ -39,13 +40,14 @@ type TProps = {
   history: string;
   policies: string;
 };
-
+/*  */
 type PropExistsOthersRequired2<T, K extends keyof T> =
   | T
   | ({ [P in keyof T as P extends K ? never : P]: T[P] } & {
-      [P in keyof T as P extends K ? P : never]?: undefined;
+      [P in K]?: undefined;
     });
 
+/* Simplified implementation */
 type PropExistsOthersRequired<T, K extends keyof T> =
   | T
   | (Omit<T, K> & { [P in K]?: undefined });
